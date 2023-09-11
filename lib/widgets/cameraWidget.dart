@@ -1,8 +1,10 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 
 class CameraApp extends StatefulWidget {
+  final Function(String path)? onCapture;
+
+  CameraApp({Key? key, this.onCapture}) : super(key: key);
 
   @override
   State<CameraApp> createState() => _CameraAppState();
@@ -14,25 +16,20 @@ class _CameraAppState extends State<CameraApp> {
 
   @override
   void initState() {
-    // // Obtain a list of the available cameras on the device.
-    // availableCameras().then((cameras) {
-    //   // Get a specific camera from the list of available cameras.
-    //   final firstCamera = cameras.first;
-      controller = CameraController(
-        CameraDescription(
-          name: "0",
-          lensDirection: CameraLensDirection.back,
-          sensorOrientation: 1,
-        ),
-        // Define the resolution to use.
-        ResolutionPreset.medium,
-      );
-
-    _initializeControllerFuture = controller.initialize();  
     super.initState();
-    //   // Next, initialize the controller. This returns a Future.
-    //   _initializeControllerFuture = controller.initialize();
-    // });
+    controller = CameraController(
+      // Initialize your camera description here.
+      CameraDescription(
+        name: "0",
+        lensDirection: CameraLensDirection.back,
+        sensorOrientation: 1,
+      ),
+      // Define the resolution to use.
+      ResolutionPreset.medium,
+    );
+
+    // Next, initialize the controller. This returns a Future.
+    _initializeControllerFuture = controller.initialize();
   }
 
   @override
@@ -40,6 +37,17 @@ class _CameraAppState extends State<CameraApp> {
     // Dispose of the controller when the widget is disposed.
     controller.dispose();
     super.dispose();
+  }
+
+  // New Method to capture image
+  Future<void> captureImage() async {
+    await _initializeControllerFuture;
+
+    final XFile image = await controller.takePicture();
+
+    if (widget.onCapture != null) {
+      widget.onCapture!(image.path);
+    }
   }
 
   @override
@@ -59,6 +67,10 @@ class _CameraAppState extends State<CameraApp> {
             return const Center(child: CircularProgressIndicator());
           }
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: captureImage,
+        child: Icon(Icons.camera),
       ),
     );
   }
