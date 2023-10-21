@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:shopping_helper_app/view/camera_view.dart';
 import '../main.dart';
-import '../widgets/cameraWidget.dart';
+// import '../widgets/cameraWidget.dart';
 import '../globals.dart' as globals;
 
 class SupermarketLayoutFunction extends StatefulWidget {
@@ -61,11 +62,7 @@ class _SupermarketLayoutFunctionState extends State<SupermarketLayoutFunction> {
             returnToHomePage();
           }
         },
-        child: CameraApp(
-          onCapture: (path) async {
-            await captureAndSendImage(path);
-          },
-        ),
+        child: const CameraView(),
       ),
     );
   }

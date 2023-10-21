@@ -7,6 +7,10 @@ String selectedOption = '';
 FlutterTts flutterTts = FlutterTts();
 
 Future<void> speak(String text) async {
-    await flutterTts.stop();
-    await flutterTts.speak(text);
-  }
+  await flutterTts.stop();
+  await flutterTts.speak(text);
+}
+
+Future<void> stopspeak() async {
+  await flutterTts.stop();
+}

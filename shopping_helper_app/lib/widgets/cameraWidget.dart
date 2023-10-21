@@ -1,5 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+// import 'package:tflite/tflite.dart';
+import 'package:logger/logger.dart';
 
 class CameraApp extends StatefulWidget {
   final Function(String path)? onCapture;
@@ -13,23 +17,26 @@ class CameraApp extends StatefulWidget {
 class _CameraAppState extends State<CameraApp> {
   late CameraController controller;
   late Future<void> _initializeControllerFuture;
+  late CameraImage cameraImage;
+
+  var cameraCount = 0;
+  var logger = Logger();
 
   @override
   void initState() {
     super.initState();
     controller = CameraController(
       // Initialize your camera description here.
-      CameraDescription(
+      const CameraDescription(
         name: "0",
         lensDirection: CameraLensDirection.back,
         sensorOrientation: 1,
       ),
       // Define the resolution to use.
-      ResolutionPreset.medium,
-    );
-
+      ResolutionPreset.max,
+    ); // To display the current output from the Camera,
     // Next, initialize the controller. This returns a Future.
-    _initializeControllerFuture = controller.initialize();
+    _initializeControllerFuture = controller.initialize().then((value) => null);
   }
 
   @override
@@ -49,6 +56,25 @@ class _CameraAppState extends State<CameraApp> {
       widget.onCapture!(image.path);
     }
   }
+  // Object detector
+  // objectDetector(CameraImage image) async {
+  //   var detector = await Tflite.runModelOnFrame(
+  //     bytesList: image.planes.map((e){
+  //     return e.bytes;
+  //   }).toList(),
+  //   asynch: true,
+  //   imageHeight : image.height,
+  //   imageWidth : image.width,
+  //   imageMean: 127.5,
+  //   imageStd: 127.5,
+  //   numResults: 1,
+  //   rotation: 90,
+  //   threshold:0.4,
+  //   );
+  //   if (detector != null) {
+  //     logger.i("Result is $detector");
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {

@@ -36,8 +36,7 @@ class _VoiceAssistantState extends State<VoiceAssistant> {
     setState(() {});
   }
 
-  void onSpeechToTextResult(SpeechRecognitionResult recognitionResult) async{
-
+  void onSpeechToTextResult(SpeechRecognitionResult recognitionResult) async {
     // Check if the result is final
     if (recognitionResult.finalResult) {
       recordedText = recognitionResult.recognizedWords.toLowerCase();
@@ -47,27 +46,24 @@ class _VoiceAssistantState extends State<VoiceAssistant> {
           recordedText == 'supermarket layout' ||
           recordedText == 'food detection' ||
           recordedText == 'reading') {
-
         // Execute the corresponding action based on the recognized phrase
         if (recordedText == 'supermarket location') {
           // Handle Supermarket Location action
-          await globals.speak("You have selected supermarket location. Confirm?");
+          await globals
+              .speak("You have selected supermarket location. Confirm?");
           globals.selectedOption = 'supermarketLocation';
           // Delay the navigation to ConfirmWidget to allow speaking to complete
-          await Future.delayed(
-              const Duration(seconds: 4));
+          await Future.delayed(const Duration(seconds: 4));
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => ConfirmWidget()),
           );
-
         } else if (recordedText == 'supermarket layout') {
           // Handle Supermarket Layout action
           await globals.speak("You have selected supermarket layout. Confirm?");
           globals.selectedOption = 'supermarketLayout';
           // Delay the navigation to ConfirmWidget to allow speaking to complete
-          await Future.delayed(
-              const Duration(seconds: 4));
+          await Future.delayed(const Duration(seconds: 4));
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => ConfirmWidget()),
@@ -77,8 +73,7 @@ class _VoiceAssistantState extends State<VoiceAssistant> {
           await globals.speak("You have selected food detection. Confirm?");
           globals.selectedOption = 'foodDetection';
           // Delay the navigation to ConfirmWidget to allow speaking to complete
-          await Future.delayed(
-              const Duration(seconds: 3));
+          await Future.delayed(const Duration(seconds: 3));
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => ConfirmWidget()),
@@ -88,8 +83,7 @@ class _VoiceAssistantState extends State<VoiceAssistant> {
           await globals.speak("You have selected reading. Confirm?");
           globals.selectedOption = 'reading';
           // Delay the navigation to ConfirmWidget to allow speaking to complete
-          await Future.delayed(
-              const Duration(seconds: 2));
+          await Future.delayed(const Duration(seconds: 2));
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => ConfirmWidget()),
@@ -97,11 +91,11 @@ class _VoiceAssistantState extends State<VoiceAssistant> {
         }
       } else {
         // If the recorded text doesn't match, instruct the user to try again
-        globals.speak("I'm Sorry! I couldn't understand. Please double-tap and speak again.");
+        globals.speak(
+            "I'm Sorry! I couldn't understand. Please double-tap and speak again.");
       }
     }
   }
-
 
   @override
   void initState() {
@@ -122,6 +116,8 @@ class _VoiceAssistantState extends State<VoiceAssistant> {
         children: [
           GestureDetector(
             onDoubleTap: () {
+              globals.stopspeak();
+              globals.speak('''I am Listening''');
               if (speechToTextInstance.isNotListening) {
                 startListeningNow();
               }
