@@ -12,6 +12,8 @@ class FoodDetectionFunction extends StatefulWidget {
   @override
   _FoodDetectionFunctionState createState() => _FoodDetectionFunctionState();
 }
+  GlobalKey<CameraAppState> cameraWidgetKey = GlobalKey();
+
 
 class _FoodDetectionFunctionState extends State<FoodDetectionFunction> {
   @override
@@ -62,9 +64,9 @@ class _FoodDetectionFunctionState extends State<FoodDetectionFunction> {
           }
         },
         child: CameraApp(
-          onCapture: (path) async {
+          onImageCapture: (path) async {
             await captureAndSendImage(path);
-          },
+          }, cameraWidgetKey: cameraWidgetKey,
         ),
       ),
     );

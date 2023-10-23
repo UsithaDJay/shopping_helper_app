@@ -1,7 +1,10 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:logger/logger.dart';
 import 'package:shopping_helper_app/widgets/scan_controller.dart';
+// import logger
+import 'package:permission_handler/permission_handler.dart';
 
 class CameraView extends StatelessWidget {
   const CameraView({super.key});

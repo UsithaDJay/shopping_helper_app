@@ -6,11 +6,14 @@ import '../globals.dart' as globals;
 
 class SupermarketLocationFunction extends StatefulWidget {
   const SupermarketLocationFunction({super.key});
+  
 
   @override
   _SupermarketLocationFunctionState createState() =>
       _SupermarketLocationFunctionState();
 }
+  GlobalKey<CameraAppState> cameraWidgetKey = GlobalKey();
+
 
 class _SupermarketLocationFunctionState
     extends State<SupermarketLocationFunction> {
@@ -48,7 +51,7 @@ class _SupermarketLocationFunctionState
             returnToHomePage();
           }
         },
-        child: CameraApp(),
+        child: CameraApp(cameraWidgetKey: cameraWidgetKey,),
       ),
     );;
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shopping_helper_app/features/supermarketLayout.dart';
 
 import '../main.dart';
 import 'widgets/voiceAssistant.dart';
@@ -45,7 +46,8 @@ class _HomePageState extends State<HomePage> {
               isConfirming = true;
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const VoiceAssistant()),
+                // MaterialPageRoute(builder: (context) => const VoiceAssistant()),
+                MaterialPageRoute(builder: (context) => const SupermarketLayoutFunction()),
               );
               
             } else if (details.primaryVelocity! > 0 && !isConfirming){

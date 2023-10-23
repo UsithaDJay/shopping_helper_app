@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:shopping_helper_app/view/camera_view.dart';
 import '../main.dart';
-// import '../widgets/cameraWidget.dart';
+import 'package:shopping_helper_app/widgets/cameraWidget.dart';
+import 'package:shopping_helper_app/widgets/scan_controller.dart';
+import 'package:logger/logger.dart';
 import '../globals.dart' as globals;
 
 class SupermarketLayoutFunction extends StatefulWidget {
@@ -15,15 +16,17 @@ class SupermarketLayoutFunction extends StatefulWidget {
 }
 
 class _SupermarketLayoutFunctionState extends State<SupermarketLayoutFunction> {
+  String? _capturedImagePath;
+  var logger = Logger();
+  GlobalKey<CameraAppState> cameraWidgetKey = GlobalKey();
+
   @override
   void initState() {
     super.initState();
-
-    // Inform the user about returning
     globals.speak("You are now in the Supermarket layout Functionality. You can return to Home Page anytime by Swiping right.");
   }
 
-  Future<void> captureAndSendImage(String path) async {
+   Future<void> captureAndSendImage1(String path) async {
     File image = File(path);
     var url = "http://192.168.92.79:80/layout";
 
@@ -39,8 +42,42 @@ class _SupermarketLayoutFunctionState extends State<SupermarketLayoutFunction> {
         print("Confidence: ${result['confidence']}");
         globals.speak(_class);
     }
-}
+    setState(() {
+      _capturedImagePath = null;
+    });
+  }
+  Future<void> captureAndSendImage(String path) async {
+    logger.i('captureAndSendImage called with path: $path');
+    ScanController scanController = ScanController();
 
+    List<dynamic>? results = await scanController.objectDetector1(path);
+  
+   if (results != null && results.isNotEmpty) {
+    var highestConfidenceResult = results.reduce((current, next) => current['confidence'] > next['confidence'] ? current : next);
+    String detectedClass = highestConfidenceResult['detectedClass'];
+    double confidence = highestConfidenceResult['confidence'];
+
+    logger.i("Highest confidence class: $detectedClass");
+    logger.i("Confidence: $confidence");
+    globals.speak(detectedClass);
+  } else {
+    logger.i("No objects detected");
+    globals.speak("No objects detected");
+  }
+  }
+  void onImageCapture(String path) {
+    logger.i("Image captured at path: $path");
+    setState(() {
+      _capturedImagePath = path;
+    });
+    captureAndSendImage(_capturedImagePath!).then((_) {
+      setState(() {
+    _capturedImagePath = null;
+    logger.i("Image path set to null");
+    });
+      // cameraWidgetKey.currentState?.restartCamera();
+    });
+  }
 
   void returnToHomePage() {
     Navigator.pushReplacement(
@@ -62,7 +99,7 @@ class _SupermarketLayoutFunctionState extends State<SupermarketLayoutFunction> {
             returnToHomePage();
           }
         },
-        child: const CameraView(),
+        child: CameraApp(cameraWidgetKey: cameraWidgetKey, onImageCapture: onImageCapture),
       ),
     );
   }

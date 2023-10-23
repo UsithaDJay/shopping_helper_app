@@ -1,103 +1,95 @@
-import 'dart:math';
-
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-// import 'package:tflite/tflite.dart';
 import 'package:logger/logger.dart';
 
 class CameraApp extends StatefulWidget {
-  final Function(String path)? onCapture;
+  final Function(String path)? onImageCapture;
+  final GlobalKey<CameraAppState> cameraWidgetKey;
 
-  CameraApp({Key? key, this.onCapture}) : super(key: key);
+  CameraApp({required this.cameraWidgetKey, this.onImageCapture}) : super(key: cameraWidgetKey);
 
   @override
-  State<CameraApp> createState() => _CameraAppState();
+  State<CameraApp> createState() => CameraAppState();
 }
 
-class _CameraAppState extends State<CameraApp> {
+class CameraAppState extends State<CameraApp> {
   late CameraController controller;
   late Future<void> _initializeControllerFuture;
-  late CameraImage cameraImage;
-
-  var cameraCount = 0;
   var logger = Logger();
+  String? _capturedImagePath;
+  bool _isDetecting = false;
 
   @override
   void initState() {
     super.initState();
+    initializeCamera();
+  }
+  Future<void> initializeCamera() async {
     controller = CameraController(
-      // Initialize your camera description here.
       const CameraDescription(
         name: "0",
         lensDirection: CameraLensDirection.back,
         sensorOrientation: 1,
       ),
-      // Define the resolution to use.
       ResolutionPreset.max,
-    ); // To display the current output from the Camera,
-    // Next, initialize the controller. This returns a Future.
-    _initializeControllerFuture = controller.initialize().then((value) => null);
+    );
+    _initializeControllerFuture = controller.initialize();
+    logger.i("Camera initialized");
+    setState(() {});
+  }
+
+  Future<void> captureImage() async {
+    if (_isDetecting) {
+      logger.i("Still detecting");
+      return;
+    }
+    try {
+      _isDetecting = true;
+      await _initializeControllerFuture;
+      final XFile image = await controller.takePicture();
+      setState(() {
+        _capturedImagePath = image.path;
+      });
+      await widget.onImageCapture?.call(_capturedImagePath!);
+    } catch(e) {
+      logger.e('Error Capturing Image: $e');
+    } finally {
+      _isDetecting = false;
+      _capturedImagePath = null;
+    }
+  }
+
+  Future<void> restartCamera() async {
+    await controller.dispose();
+    logger.i("Camera disposed");
+    await Future.delayed(Duration(milliseconds: 1000)); 
+    await initializeCamera();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    logger.i("Camera build called,_capturedImagePath: $_capturedImagePath");
+    return FutureBuilder<void>(
+      future: _initializeControllerFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          return GestureDetector(
+            onDoubleTap: captureImage,
+            child: _capturedImagePath == null
+                ? CameraPreview(controller)
+                : Image.file(File(_capturedImagePath!)),
+          );
+        } else {
+          return const Center(child: CircularProgressIndicator());
+        }
+      },
+    );
   }
 
   @override
   void dispose() {
-    // Dispose of the controller when the widget is disposed.
     controller.dispose();
     super.dispose();
-  }
-
-  // New Method to capture image
-  Future<void> captureImage() async {
-    await _initializeControllerFuture;
-
-    final XFile image = await controller.takePicture();
-
-    if (widget.onCapture != null) {
-      widget.onCapture!(image.path);
-    }
-  }
-  // Object detector
-  // objectDetector(CameraImage image) async {
-  //   var detector = await Tflite.runModelOnFrame(
-  //     bytesList: image.planes.map((e){
-  //     return e.bytes;
-  //   }).toList(),
-  //   asynch: true,
-  //   imageHeight : image.height,
-  //   imageWidth : image.width,
-  //   imageMean: 127.5,
-  //   imageStd: 127.5,
-  //   numResults: 1,
-  //   rotation: 90,
-  //   threshold:0.4,
-  //   );
-  //   if (detector != null) {
-  //     logger.i("Result is $detector");
-  //   }
-  // }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      // Wait until the controller is initialized before displaying the
-      // camera preview. Use a FutureBuilder to display a loading spinner
-      // until the controller has finished initializing.
-      body: FutureBuilder<void>(
-        future: _initializeControllerFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            // If the Future is complete, display the preview.
-            return CameraPreview(controller);
-          } else {
-            // Otherwise, display a loading indicator.
-            return const Center(child: CircularProgressIndicator());
-          }
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: captureImage,
-        child: Icon(Icons.camera),
-      ),
-    );
   }
 }

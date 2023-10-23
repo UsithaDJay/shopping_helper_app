@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shopping_helper_app/features/foodDetection.dart';
 
 import '../main.dart';
 import '../widgets/cameraWidget.dart';
@@ -11,6 +12,7 @@ class ReadingFunction extends StatefulWidget {
   _ReadingFunctionState createState() =>
       _ReadingFunctionState();
 }
+  GlobalKey<CameraAppState> cameraWidgetKey = GlobalKey();
 
 class _ReadingFunctionState
     extends State<ReadingFunction> {
@@ -48,7 +50,7 @@ class _ReadingFunctionState
             returnToHomePage();
           }
         },
-        child: CameraApp(),
+        child: CameraApp(cameraWidgetKey: cameraWidgetKey,),
       ),
     );
   }
