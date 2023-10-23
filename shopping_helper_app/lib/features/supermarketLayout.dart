@@ -6,6 +6,8 @@ import '../main.dart';
 import 'package:shopping_helper_app/widgets/cameraWidget.dart';
 import 'package:shopping_helper_app/widgets/scan_controller.dart';
 import 'package:logger/logger.dart';
+import 'package:get/get.dart';
+
 import '../globals.dart' as globals;
 
 class SupermarketLayoutFunction extends StatefulWidget {
@@ -48,14 +50,14 @@ class _SupermarketLayoutFunctionState extends State<SupermarketLayoutFunction> {
   }
   Future<void> captureAndSendImage(String path) async {
     logger.i('captureAndSendImage called with path: $path');
-    ScanController scanController = ScanController();
+    final scanController = Get.put(ScanController());
 
     List<dynamic>? results = await scanController.objectDetector1(path);
   
    if (results != null && results.isNotEmpty) {
-    var highestConfidenceResult = results.reduce((current, next) => current['confidence'] > next['confidence'] ? current : next);
+    var highestConfidenceResult = results.reduce((current, next) => current['confidenceInClass'] > next['confidenceInClass'] ? current : next);
     String detectedClass = highestConfidenceResult['detectedClass'];
-    double confidence = highestConfidenceResult['confidence'];
+    double confidence = highestConfidenceResult['confidenceInClass'];
 
     logger.i("Highest confidence class: $detectedClass");
     logger.i("Confidence: $confidence");
