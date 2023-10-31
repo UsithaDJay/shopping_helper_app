@@ -48,6 +48,57 @@ class _SupermarketLayoutFunctionState extends State<SupermarketLayoutFunction> {
       _capturedImagePath = null;
     });
   }
+  Future<void> captureAndSendImage2(String path) async {
+  File image = File(path);
+  var colabUrl = "http://bde7-34-106-165-31.ngrok-free.app/predict"; // Replace with the actual URL of your Colab service's /predict endpoint.
+
+  // Read the image file as bytes
+  List<int> imageBytes = await image.readAsBytes();
+
+  // Convert the image bytes to base64
+  String imageBase64 = base64Encode(imageBytes);
+
+  // Prepare the request body with just the image data
+  Map<String, String> requestBody = {
+    "img_base64": imageBase64,
+  };
+  logger.i(requestBody);
+
+  try {
+    var response = await http.post(
+      Uri.parse(colabUrl),
+      headers: {
+        'Content-Type': 'application/json', // Set the content type to JSON
+      },
+      body: jsonEncode(requestBody), // Encode the request body as JSON
+    );
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> result = jsonDecode(response.body);
+
+      if (result.containsKey('highest_confidence_class') &&
+          result.containsKey('confidence')) {
+        String _class = result['highest_confidence_class'];
+        double _confidence = result['confidence'];
+
+        logger.i("Highest confidence class: $_class");
+        logger.i("Confidence: $_confidence");
+        globals.speak(_class);
+      } else {
+        logger.i("Invalid response format from Colab service");
+      }
+    } else {
+      logger.e("Error: ${response.statusCode}");
+    }
+  } catch (error) {
+    logger.e("Error: $error");
+  }
+
+  setState(() {
+    _capturedImagePath = null;
+  });
+}
+
   Future<void> captureAndSendImage(String path) async {
     logger.i('captureAndSendImage called with path: $path');
     final scanController = Get.put(ScanController());
@@ -72,7 +123,7 @@ class _SupermarketLayoutFunctionState extends State<SupermarketLayoutFunction> {
     setState(() {
       _capturedImagePath = path;
     });
-    captureAndSendImage(_capturedImagePath!).then((_) {
+    captureAndSendImage2(_capturedImagePath!).then((_) {
       setState(() {
     _capturedImagePath = null;
     logger.i("Image path set to null");

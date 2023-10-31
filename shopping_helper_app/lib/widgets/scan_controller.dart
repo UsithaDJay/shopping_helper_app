@@ -64,6 +64,16 @@ class ScanController extends GetxController {
   //   }
   // }
 
+
+  // ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  // Here if I used my model it won't work. 
+  // My model's output sizes of my object detection model and the output sizes of the image doesn't work. I also cannot use the model provided by the tflite_v2 package too.
+  // Model mobilenet is used to image classifications. Their output sizes also doesn't match properly. I couldn't find a way to change the output size of the model.
+  // I also couldn't find a method to change the output sizes of runmodeloBinary... etc functions.
+  // But I strongly suspect that this can be done through the tflite_flutter package. But I couldn't find a way to do it.
+  // For now just follow the medium article in E:\WebDev\UIUX\FLutter\Developments\Blind-people app\Object_detection_app
+  // ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
   initTFLite() async {
     await tfl.Tflite.loadModel(
       model: "assets/ssd_mobilenet.tflite",

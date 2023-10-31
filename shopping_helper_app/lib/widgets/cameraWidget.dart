@@ -33,6 +33,7 @@ class CameraAppState extends State<CameraApp> {
         sensorOrientation: 1,
       ),
       ResolutionPreset.max,
+      imageFormatGroup: ImageFormatGroup.jpeg,
     );
     _initializeControllerFuture = controller.initialize();
     logger.i("Camera initialized");

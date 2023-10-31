@@ -42,7 +42,7 @@ def detect_objects():
         image = cv2.imdecode(np.frombuffer(image_file.read(), np.uint8), -1)
         print(image_file)
         annotated_image = image.copy()
-
+ 
         highest_confidence_class = ""
         highest_confidence = 0
 
