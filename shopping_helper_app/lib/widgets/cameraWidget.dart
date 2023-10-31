@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:logger/logger.dart';
+import '../globals.dart' as globals;
 
 class CameraApp extends StatefulWidget {
   final Function(String path)? onImageCapture;
@@ -43,6 +44,7 @@ class CameraAppState extends State<CameraApp> {
   Future<void> captureImage() async {
     if (_isDetecting) {
       logger.i("Still detecting");
+      globals.speak("Still detecting");
       return;
     }
     try {
@@ -52,6 +54,7 @@ class CameraAppState extends State<CameraApp> {
       setState(() {
         _capturedImagePath = image.path;
       });
+      globals.speak("Starting detection");
       await widget.onImageCapture?.call(_capturedImagePath!);
     } catch(e) {
       logger.e('Error Capturing Image: $e');

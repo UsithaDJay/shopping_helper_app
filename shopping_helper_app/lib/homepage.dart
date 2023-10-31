@@ -46,8 +46,8 @@ class _HomePageState extends State<HomePage> {
               isConfirming = true;
               Navigator.pushReplacement(
                 context,
-                // MaterialPageRoute(builder: (context) => const VoiceAssistant()),
-                MaterialPageRoute(builder: (context) => const SupermarketLayoutFunction()),
+                MaterialPageRoute(builder: (context) => const VoiceAssistant()),
+                // MaterialPageRoute(builder: (context) => const SupermarketLayoutFunction()),
               );
               
             } else if (details.primaryVelocity! > 0 && !isConfirming){

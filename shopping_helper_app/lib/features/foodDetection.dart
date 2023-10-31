@@ -5,6 +5,8 @@ import 'package:http/http.dart' as http;
 import '../main.dart';
 import '../widgets/cameraWidget.dart';
 import '../globals.dart' as globals;
+import 'package:logger/logger.dart';
+
 
 class FoodDetectionFunction extends StatefulWidget {
   const FoodDetectionFunction({Key? key}) : super(key: key);
@@ -13,7 +15,8 @@ class FoodDetectionFunction extends StatefulWidget {
   _FoodDetectionFunctionState createState() => _FoodDetectionFunctionState();
 }
   GlobalKey<CameraAppState> cameraWidgetKey = GlobalKey();
-
+  String? _capturedImagePath;
+  var logger = Logger();
 
 class _FoodDetectionFunctionState extends State<FoodDetectionFunction> {
   @override
@@ -26,7 +29,7 @@ class _FoodDetectionFunctionState extends State<FoodDetectionFunction> {
 
   Future<void> captureAndSendImage(String path) async {
     File image = File(path);
-    var url = "http://192.168.92.79:80/detect";
+    var url = "http://73e8-35-247-9-74.ngrok-free.app/detect_food";
 
     var request = http.MultipartRequest('POST', Uri.parse(url));
     request.files.add(await http.MultipartFile.fromPath('image', image.path));
@@ -36,11 +39,30 @@ class _FoodDetectionFunctionState extends State<FoodDetectionFunction> {
         var result = jsonDecode(await response.stream.bytesToString());
         String _class = result['highest_confidence_class'];
         String _confidence = result['confidence'].toString();
-        print("Highest confidence class: ${result['highest_confidence_class']}");
-        print("Confidence: ${result['confidence']}");
+        logger.i("Highest confidence class: ${result['highest_confidence_class']}");
+        logger.i("Confidence: ${result['confidence']}");
+        if (_class == "Ripe"){_class = "Fresh Pinapple";}
+        else if(_class == "Semi_Ripe"){_class = "Half Fresh Pinapple";}
+        else if(_class == "Un_Ripe") {_class = "Unfresh Pinapple";}
         globals.speak(_class);
     }
+    setState(() {
+    _capturedImagePath = null;
+  });
 }
+  void onImageCapture(String path) {
+    logger.i("Image captured at path: $path");
+    setState(() {
+      _capturedImagePath = path;
+    });
+    captureAndSendImage(_capturedImagePath!).then((_) {
+      setState(() {
+    _capturedImagePath = null;
+    logger.i("Image path set to null");
+    });
+      // cameraWidgetKey.currentState?.restartCamera();
+    });
+  }
 
 
   void returnToHomePage() {
@@ -63,11 +85,12 @@ class _FoodDetectionFunctionState extends State<FoodDetectionFunction> {
             returnToHomePage();
           }
         },
-        child: CameraApp(
-          onImageCapture: (path) async {
-            await captureAndSendImage(path);
-          }, cameraWidgetKey: cameraWidgetKey,
-        ),
+        // child: CameraApp(
+        //   onImageCapture: (path) async {
+        //     await captureAndSendImage(path);
+        //   }, cameraWidgetKey: cameraWidgetKey,
+        // ),
+        child: CameraApp(cameraWidgetKey: cameraWidgetKey, onImageCapture: onImageCapture),
       ),
     );
   }

@@ -28,29 +28,29 @@ class _SupermarketLayoutFunctionState extends State<SupermarketLayoutFunction> {
     globals.speak("You are now in the Supermarket layout Functionality. You can return to Home Page anytime by Swiping right.");
   }
 
-   Future<void> captureAndSendImage1(String path) async {
-    File image = File(path);
-    var url = "http://192.168.92.79:80/layout";
+  //  Future<void> captureAndSendImage1(String path) async {
+  //   File image = File(path);
+  //   var url = "http://192.168.92.79:80/layout";
 
-    var request = http.MultipartRequest('POST', Uri.parse(url));
-    request.files.add(await http.MultipartFile.fromPath('image', image.path));
+  //   var request = http.MultipartRequest('POST', Uri.parse(url));
+  //   request.files.add(await http.MultipartFile.fromPath('image', image.path));
 
-    var response = await request.send();
-    if (response.statusCode == 200) {
-        var result = jsonDecode(await response.stream.bytesToString());
-        String _class = result['highest_confidence_class'];
-        String _confidence = result['confidence'].toString();
-        print("Highest confidence class: ${result['highest_confidence_class']}");
-        print("Confidence: ${result['confidence']}");
-        globals.speak(_class);
-    }
-    setState(() {
-      _capturedImagePath = null;
-    });
-  }
+  //   var response = await request.send();
+  //   if (response.statusCode == 200) {
+  //       var result = jsonDecode(await response.stream.bytesToString());
+  //       String _class = result['highest_confidence_class'];
+  //       String _confidence = result['confidence'].toString();
+  //       print("Highest confidence class: ${result['highest_confidence_class']}");
+  //       print("Confidence: ${result['confidence']}");
+  //       globals.speak(_class);
+  //   }
+  //   setState(() {
+  //     _capturedImagePath = null;
+  //   });
+  // }
   Future<void> captureAndSendImage2(String path) async {
   File image = File(path);
-  var colabUrl = "http://bde7-34-106-165-31.ngrok-free.app/predict"; // Replace with the actual URL of your Colab service's /predict endpoint.
+  var colabUrl = "http://73e8-35-247-9-74.ngrok-free.app/detect_layout"; // Replace with the actual URL of your Colab service's /predict endpoint.
 
   // Read the image file as bytes
   List<int> imageBytes = await image.readAsBytes();
@@ -74,12 +74,12 @@ class _SupermarketLayoutFunctionState extends State<SupermarketLayoutFunction> {
     );
 
     if (response.statusCode == 200) {
-      Map<String, dynamic> result = jsonDecode(response.body);
+      logger.i("Response body: ${response.body}");
+      List<dynamic> result = jsonDecode(response.body);
 
-      if (result.containsKey('highest_confidence_class') &&
-          result.containsKey('confidence')) {
-        String _class = result['highest_confidence_class'];
-        double _confidence = result['confidence'];
+      if (result.isNotEmpty) {
+        String _class = result[0];
+        double _confidence = result[1];
 
         logger.i("Highest confidence class: $_class");
         logger.i("Confidence: $_confidence");
@@ -99,25 +99,25 @@ class _SupermarketLayoutFunctionState extends State<SupermarketLayoutFunction> {
   });
 }
 
-  Future<void> captureAndSendImage(String path) async {
-    logger.i('captureAndSendImage called with path: $path');
-    final scanController = Get.put(ScanController());
+  // Future<void> captureAndSendImage(String path) async {
+  //   logger.i('captureAndSendImage called with path: $path');
+  //   final scanController = Get.put(ScanController());
 
-    List<dynamic>? results = await scanController.objectDetector1(path);
+  //   List<dynamic>? results = await scanController.objectDetector1(path);
   
-   if (results != null && results.isNotEmpty) {
-    var highestConfidenceResult = results.reduce((current, next) => current['confidenceInClass'] > next['confidenceInClass'] ? current : next);
-    String detectedClass = highestConfidenceResult['detectedClass'];
-    double confidence = highestConfidenceResult['confidenceInClass'];
+  //  if (results != null && results.isNotEmpty) {
+  //   var highestConfidenceResult = results.reduce((current, next) => current['confidenceInClass'] > next['confidenceInClass'] ? current : next);
+  //   String detectedClass = highestConfidenceResult['detectedClass'];
+  //   double confidence = highestConfidenceResult['confidenceInClass'];
 
-    logger.i("Highest confidence class: $detectedClass");
-    logger.i("Confidence: $confidence");
-    globals.speak(detectedClass);
-  } else {
-    logger.i("No objects detected");
-    globals.speak("No objects detected");
-  }
-  }
+  //   logger.i("Highest confidence class: $detectedClass");
+  //   logger.i("Confidence: $confidence");
+  //   globals.speak(detectedClass);
+  // } else {
+  //   logger.i("No objects detected");
+  //   globals.speak("No objects detected");
+  // }
+  // }
   void onImageCapture(String path) {
     logger.i("Image captured at path: $path");
     setState(() {

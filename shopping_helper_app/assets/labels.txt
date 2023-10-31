@@ -1,4 +1,4 @@
-Trolley
+Trolley is in the right most corner
 Basket
-Cashier
+Cashier is in the right most corner
 Bottles
