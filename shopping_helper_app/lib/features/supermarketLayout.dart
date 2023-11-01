@@ -50,7 +50,7 @@ class _SupermarketLayoutFunctionState extends State<SupermarketLayoutFunction> {
   // }
   Future<void> captureAndSendImage2(String path) async {
   File image = File(path);
-  var colabUrl = "http://73e8-35-247-9-74.ngrok-free.app/detect_layout"; // Replace with the actual URL of your Colab service's /predict endpoint.
+  var colabUrl = "http://4f31-34-82-112-159.ngrok-free.app/detect_layout"; // Replace with the actual URL of your Colab service's /predict endpoint.
 
   // Read the image file as bytes
   List<int> imageBytes = await image.readAsBytes();

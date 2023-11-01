@@ -6,6 +6,8 @@ import '../main.dart';
 import '../globals.dart' as globals;
 import 'glowingMicrophoneWidget.dart';
 import 'confirmWidget.dart';
+import 'package:logger/logger.dart';
+
 
 class VoiceAssistant extends StatefulWidget {
   const VoiceAssistant({super.key});
@@ -18,6 +20,7 @@ class _VoiceAssistantState extends State<VoiceAssistant> {
   final SpeechToText speechToTextInstance = SpeechToText();
   String recordedText = '';
   bool speechEnabled = false;
+    var logger = Logger();
 
   void initializeSpeechToText() async {
     speechEnabled = await speechToTextInstance.initialize();
@@ -40,6 +43,7 @@ class _VoiceAssistantState extends State<VoiceAssistant> {
     // Check if the result is final
     if (recognitionResult.finalResult) {
       recordedText = recognitionResult.recognizedWords.toLowerCase();
+      logger.i(recordedText);
 
       // Check if the recorded text matches one of the specified phrases
       if (recordedText == 'supermarket location' ||
@@ -102,6 +106,8 @@ class _VoiceAssistantState extends State<VoiceAssistant> {
     super.initState();
 
     globals.selectedOption = '';
+    // stopListeningNow();
+    // logger.i('Stopped listening');
     // Inform the user
     globals.speak('''Double-tap, and after the beep sound, say what you want. 
     To return to the home page again, swipe right.''');
@@ -115,11 +121,13 @@ class _VoiceAssistantState extends State<VoiceAssistant> {
       body: Stack(
         children: [
           GestureDetector(
-            onDoubleTap: () {
+            onDoubleTap: () async{
               globals.stopspeak();
               globals.speak('''I am Listening''');
+              await Future.delayed(const Duration(seconds: 1));
               if (speechToTextInstance.isNotListening) {
                 startListeningNow();
+                logger.i('started listening');
               }
             },
             onHorizontalDragEnd: (details) {

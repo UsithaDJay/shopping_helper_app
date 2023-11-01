@@ -29,7 +29,7 @@ class _FoodDetectionFunctionState extends State<FoodDetectionFunction> {
 
   Future<void> captureAndSendImage(String path) async {
     File image = File(path);
-    var url = "http://73e8-35-247-9-74.ngrok-free.app/detect_food";
+    var url = "http://4f31-34-82-112-159.ngrok-free.app/detect_food";
 
     var request = http.MultipartRequest('POST', Uri.parse(url));
     request.files.add(await http.MultipartFile.fromPath('image', image.path));

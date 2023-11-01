@@ -67,7 +67,8 @@ class _GlowingHeadsetIconState extends State<GlowingHeadsetIcon> {
               : [],
         ),
         child: const Icon(
-          Icons.headphones_battery_rounded,
+          // Icons.headphones_battery_rounded,
+          Icons.headphones_rounded,
           size: 100, // Adjust the size of the headset icon
           color: Colors.blue,
         ),
